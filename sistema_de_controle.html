@@ -2,30 +2,79 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Sistema de Controle de Componentes</title>
+<title>LabControl - Sistema de Componentes</title>
 
 <style>
 
+*{
+box-sizing:border-box;
+}
+
 body{
-font-family:Arial;
-background:#1e1e1e;
-color:#e0e0e0;
+font-family:"Segoe UI",Arial;
+background:linear-gradient(135deg,#0f172a,#1e293b);
+color:#e2e8f0;
 margin:0;
-padding:20px;
 }
 
-.container{
-max-width:1100px;
+/* NAVBAR */
+
+.navbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 40px;
+background:rgba(15,23,42,0.8);
+backdrop-filter:blur(10px);
+border-bottom:1px solid rgba(255,255,255,0.05);
+position:sticky;
+top:0;
+z-index:100;
+}
+
+.logo{
+font-size:20px;
+font-weight:bold;
+color:#38bdf8;
+}
+
+nav a{
+margin:0 15px;
+text-decoration:none;
+color:#cbd5f5;
+font-weight:500;
+transition:0.2s;
+}
+
+nav a:hover{
+color:#38bdf8;
+}
+
+.perfil{
+background:#1e293b;
+padding:8px 15px;
+border-radius:20px;
+}
+
+/* DASHBOARD */
+
+.dashboard{
+max-width:1200px;
 margin:auto;
-background:#2b2b2b;
-padding:25px;
-border-radius:10px;
-box-shadow:0 5px 20px rgba(0,0,0,0.6);
+padding:30px;
+display:grid;
+gap:25px;
 }
 
-h1,h2{
-text-align:center;
+.card{
+background:rgba(255,255,255,0.04);
+border-radius:14px;
+padding:25px;
+box-shadow:0 10px 40px rgba(0,0,0,0.5);
+backdrop-filter:blur(10px);
 }
+
+/* FORM */
 
 form{
 display:grid;
@@ -40,55 +89,72 @@ grid-template-columns:1fr;
 }
 
 input,select{
-padding:8px;
-border-radius:5px;
-border:1px solid #555;
-background:#3a3a3a;
+padding:10px;
+border-radius:8px;
+border:1px solid rgba(255,255,255,0.1);
+background:#0f172a;
 color:white;
 width:100%;
 }
+
+/* BOTÕES */
 
 button{
 padding:10px;
-background:#0b3d91;
-color:white;
 border:none;
-border-radius:5px;
-cursor:pointer;
+border-radius:8px;
+background:linear-gradient(135deg,#3b82f6,#06b6d4);
+color:white;
 font-weight:bold;
+cursor:pointer;
+transition:0.2s;
 }
 
 button:hover{
-background:#072a63;
+transform:scale(1.05);
 }
+
+.cancelar{
+background:#ef4444;
+}
+
+/* TABELAS */
 
 table{
 width:100%;
-margin-top:20px;
 border-collapse:collapse;
+margin-top:15px;
 }
 
 th,td{
-border:1px solid #555;
-padding:8px;
+padding:10px;
+border-bottom:1px solid rgba(255,255,255,0.08);
 text-align:center;
 }
 
 th{
-background:#0b3d91;
+color:#38bdf8;
 }
 
-.cancelar{
-background:#8b0000;
-}
+/* GRAFICO */
 
 canvas{
-background:#1e1e1e;
 margin-top:20px;
+background:#020617;
+border-radius:10px;
 }
 
 .hidden{
 display:none;
+}
+
+.login{
+max-width:400px;
+margin:100px auto;
+padding:30px;
+background:rgba(255,255,255,0.05);
+border-radius:12px;
+text-align:center;
 }
 
 </style>
@@ -96,82 +162,104 @@ display:none;
 
 <body>
 
-<div id="login" class="container">
+<header class="navbar">
+
+<div class="logo">
+⚡ LabControl
+</div>
+
+<nav>
+<a href="#">Reservas</a>
+<a href="#">Calendário</a>
+<a href="#">Estoque</a>
+<a href="#">Histórico</a>
+</nav>
+
+<div class="perfil">
+👤 Sistema
+</div>
+
+</header>
+
+<div id="login" class="login">
 
 <h2>Login</h2>
 
 <input type="text" id="user" placeholder="Usuário">
+<br><br>
 <input type="password" id="pass" placeholder="Senha">
-
 <br><br>
 
 <button onclick="login()">Entrar</button>
 
-<p style="text-align:center">
-Aluno: felipekrueger / 1234<br>
-Professor: gabrielbaptista / 1234
+<p>
+Aluno: aluno / 1234<br>
+Professor: professor / 1234
 </p>
 
 </div>
 
-<div id="sistema" class="container hidden">
+<div id="sistema" class="dashboard hidden">
 
-<h1>Sistema de Reserva de Componentes</h1>
+<div class="card">
 
 <h2>Nova Reserva</h2>
 
 <form id="form">
 
 <input id="nome" placeholder="Nome">
-
 <input id="turma" placeholder="Turma">
-
 <input type="date" id="data">
 
 <select id="componente"></select>
 
 <input type="time" id="retirada">
-
 <input type="time" id="devolucao">
 
 <input type="number" id="quantidade" placeholder="Quantidade">
-
 <input id="obs" placeholder="Observações">
 
 <button>Registrar</button>
 
 </form>
 
+</div>
+
+<div class="card">
+
 <h2>Calendário do Dia</h2>
 
 <input type="date" id="filtroData">
 
 <table id="calendarioTabela">
-
 <tr>
 <th>Componente</th>
 <th>Retirada</th>
 <th>Devolução</th>
 <th>Responsável</th>
 </tr>
-
 </table>
+
+</div>
+
+<div class="card">
 
 <h2>Estoque</h2>
 
 <table id="estoqueTabela">
-
 <tr>
 <th>Componente</th>
 <th>Quantidade</th>
 </tr>
-
 </table>
+
+</div>
+
+<div class="card">
 
 <h2>Histórico</h2>
 
 <table id="reservasTabela">
-
 <tr>
 <th>Nome</th>
 <th>Turma</th>
@@ -182,12 +270,17 @@ Professor: gabrielbaptista / 1234
 <th>Devolução</th>
 <th>Ação</th>
 </tr>
-
 </table>
+
+</div>
+
+<div class="card">
 
 <h2>Gráfico de Uso</h2>
 
 <canvas id="grafico" height="120"></canvas>
+
+</div>
 
 </div>
 
@@ -324,8 +417,8 @@ for(let c in contagem){
 
 let valor=contagem[c]
 
-ctx.fillStyle="#0b3d91"
-ctx.fillRect(50,i*40+20,valor*10,20)
+ctx.fillStyle="#38bdf8"
+ctx.fillRect(150,i*40+20,valor*10,20)
 
 ctx.fillStyle="white"
 ctx.fillText(c+" ("+valor+")",10,i*40+35)
