@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Sistema de Controle de Componentes</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#1e1e1e;
+color:#e0e0e0;
+margin:0;
+padding:20px;
+}
+
+.container{
+max-width:1100px;
+margin:auto;
+background:#2b2b2b;
+padding:25px;
+border-radius:10px;
+box-shadow:0 5px 20px rgba(0,0,0,0.6);
+}
+
+h1,h2{
+text-align:center;
+}
+
+form{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+}
+
+@media(max-width:700px){
+form{
+grid-template-columns:1fr;
+}
+}
+
+input,select{
+padding:8px;
+border-radius:5px;
+border:1px solid #555;
+background:#3a3a3a;
+color:white;
+width:100%;
+}
+
+button{
+padding:10px;
+background:#0b3d91;
+color:white;
+border:none;
+border-radius:5px;
+cursor:pointer;
+font-weight:bold;
+}
+
+button:hover{
+background:#072a63;
+}
+
+table{
+width:100%;
+margin-top:20px;
+border-collapse:collapse;
+}
+
+th,td{
+border:1px solid #555;
+padding:8px;
+text-align:center;
+}
+
+th{
+background:#0b3d91;
+}
+
+.cancelar{
+background:#8b0000;
+}
+
+canvas{
+background:#1e1e1e;
+margin-top:20px;
+}
+
+.hidden{
+display:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="login" class="container">
+
+<h2>Login</h2>
+
+<input type="text" id="user" placeholder="Usuário">
+<input type="password" id="pass" placeholder="Senha">
+
+<br><br>
+
+<button onclick="login()">Entrar</button>
+
+<p style="text-align:center">
+Aluno: felipekrueger / 1234<br>
+Professor: gabrielbaptista / 1234
+</p>
+
+</div>
+
+<div id="sistema" class="container hidden">
+
+<h1>Sistema de Reserva de Componentes</h1>
+
+<h2>Nova Reserva</h2>
+
+<form id="form">
+
+<input id="nome" placeholder="Nome">
+
+<input id="turma" placeholder="Turma">
+
+<input type="date" id="data">
+
+<select id="componente"></select>
+
+<input type="time" id="retirada">
+
+<input type="time" id="devolucao">
+
+<input type="number" id="quantidade" placeholder="Quantidade">
+
+<input id="obs" placeholder="Observações">
+
+<button>Registrar</button>
+
+</form>
+
+<h2>Calendário do Dia</h2>
+
+<input type="date" id="filtroData">
+
+<table id="calendarioTabela">
+
+<tr>
+<th>Componente</th>
+<th>Retirada</th>
+<th>Devolução</th>
+<th>Responsável</th>
+</tr>
+
+</table>
+
+<h2>Estoque</h2>
+
+<table id="estoqueTabela">
+
+<tr>
+<th>Componente</th>
+<th>Quantidade</th>
+</tr>
+
+</table>
+
+<h2>Histórico</h2>
+
+<table id="reservasTabela">
+
+<tr>
+<th>Nome</th>
+<th>Turma</th>
+<th>Data</th>
+<th>Componente</th>
+<th>Qtd</th>
+<th>Retirada</th>
+<th>Devolução</th>
+<th>Ação</th>
+</tr>
+
+</table>
+
+<h2>Gráfico de Uso</h2>
+
+<canvas id="grafico" height="120"></canvas>
+
+</div>
+
+<script>
+
+let usuarioTipo=""
+
+let estoque=JSON.parse(localStorage.getItem("estoque"))||{
+"Kit arduino":24,
+"Protoboard pequena":24,
+"Protoboard grande":24,
+"Tapete de borracha":12
+}
+
+let reservas=JSON.parse(localStorage.getItem("reservas"))||[]
+
+const select=document.getElementById("componente")
+
+function carregarComponentes(){
+
+select.innerHTML=""
+
+for(let c in estoque){
+
+let op=document.createElement("option")
+op.value=c
+op.textContent=c
+select.appendChild(op)
+
+}
+
+}
+
+function atualizarEstoque(){
+
+let tabela=document.getElementById("estoqueTabela")
+
+tabela.innerHTML="<tr><th>Componente</th><th>Quantidade</th></tr>"
+
+for(let c in estoque){
+
+let linha=tabela.insertRow()
+
+linha.insertCell(0).innerText=c
+linha.insertCell(1).innerText=estoque[c]
+
+}
+
+}
+
+function atualizarReservas(){
+
+let tabela=document.getElementById("reservasTabela")
+
+tabela.innerHTML="<tr><th>Nome</th><th>Turma</th><th>Data</th><th>Componente</th><th>Qtd</th><th>Retirada</th><th>Devolução</th><th>Ação</th></tr>"
+
+reservas.forEach((r,index)=>{
+
+let linha=tabela.insertRow()
+
+linha.insertCell(0).innerText=r.nome
+linha.insertCell(1).innerText=r.turma
+linha.insertCell(2).innerText=r.data
+linha.insertCell(3).innerText=r.componente
+linha.insertCell(4).innerText=r.quantidade
+linha.insertCell(5).innerText=r.retirada
+linha.insertCell(6).innerText=r.devolucao
+
+let acao=linha.insertCell(7)
+
+if(usuarioTipo==="professor"){
+
+let btn=document.createElement("button")
+btn.innerText="Cancelar"
+btn.className="cancelar"
+
+btn.onclick=function(){
+
+estoque[r.componente]+=r.quantidade
+reservas.splice(index,1)
+
+salvar()
+
+}
+
+acao.appendChild(btn)
+
+}
+
+})
+
+}
+
+function atualizarCalendario(){
+
+let data=document.getElementById("filtroData").value
+
+let tabela=document.getElementById("calendarioTabela")
+
+tabela.innerHTML="<tr><th>Componente</th><th>Retirada</th><th>Devolução</th><th>Responsável</th></tr>"
+
+reservas.filter(r=>r.data===data).forEach(r=>{
+
+let linha=tabela.insertRow()
+
+linha.insertCell(0).innerText=r.componente
+linha.insertCell(1).innerText=r.retirada
+linha.insertCell(2).innerText=r.devolucao
+linha.insertCell(3).innerText=r.nome
+
+})
+
+}
+
+function atualizarGrafico(){
+
+let canvas=document.getElementById("grafico")
+let ctx=canvas.getContext("2d")
+
+ctx.clearRect(0,0,canvas.width,canvas.height)
+
+let contagem={}
+
+reservas.forEach(r=>{
+
+if(!contagem[r.componente]) contagem[r.componente]=0
+contagem[r.componente]+=r.quantidade
+
+})
+
+let i=0
+
+for(let c in contagem){
+
+let valor=contagem[c]
+
+ctx.fillStyle="#0b3d91"
+ctx.fillRect(50,i*40+20,valor*10,20)
+
+ctx.fillStyle="white"
+ctx.fillText(c+" ("+valor+")",10,i*40+35)
+
+i++
+
+}
+
+}
+
+function salvar(){
+
+localStorage.setItem("reservas",JSON.stringify(reservas))
+localStorage.setItem("estoque",JSON.stringify(estoque))
+
+atualizarReservas()
+atualizarEstoque()
+atualizarGrafico()
+
+}
+
+document.getElementById("form").addEventListener("submit",function(e){
+
+e.preventDefault()
+
+let nome=nomeInput.value
+let turma=turmaInput.value
+let data=dataInput.value
+let componente=componenteInput.value
+let quantidade=parseInt(quantidadeInput.value)
+let retirada=retiradaInput.value
+let devolucao=devolucaoInput.value
+
+if(quantidade>estoque[componente]){
+alert("Estoque insuficiente")
+return
+}
+
+estoque[componente]-=quantidade
+
+reservas.push({nome,turma,data,componente,quantidade,retirada,devolucao})
+
+salvar()
+
+})
+
+const nomeInput=document.getElementById("nome")
+const turmaInput=document.getElementById("turma")
+const dataInput=document.getElementById("data")
+const componenteInput=document.getElementById("componente")
+const quantidadeInput=document.getElementById("quantidade")
+const retiradaInput=document.getElementById("retirada")
+const devolucaoInput=document.getElementById("devolucao")
+
+function login(){
+
+let u=document.getElementById("user").value
+let p=document.getElementById("pass").value
+
+if(u==="professor" && p==="1234"){
+usuarioTipo="professor"
+}
+else if(u==="aluno" && p==="1234"){
+usuarioTipo="aluno"
+}
+else{
+alert("Login incorreto")
+return
+}
+
+document.getElementById("login").classList.add("hidden")
+document.getElementById("sistema").classList.remove("hidden")
+
+}
+
+document.getElementById("filtroData").addEventListener("change",atualizarCalendario)
+
+carregarComponentes()
+atualizarReservas()
+atualizarEstoque()
+atualizarGrafico()
+
+</script>
+
+</body>
+</html>
