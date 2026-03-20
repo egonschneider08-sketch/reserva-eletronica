@@ -1,5 +1,6 @@
 
-LabControl - Sistema de Componentes
+LabControl - Sistema de Reserva para kits de Arduino 
+
 Um sistema web simples, responsivo e intuitivo desenvolvido para gerenciar o estoque e as reservas de componentes eletrônicos em laboratórios educacionais (como Kits Arduino e Protoboards). O projeto foi construído em um único arquivo, focando na praticidade e usando o armazenamento local do navegador para manter os dados.
 
 Funcionalidades
@@ -30,7 +31,7 @@ Como o projeto é construído inteiramente no front-end e não requer um servido
 Faça o clone deste repositório:
 
 Bash
-git clone https://github.com/SEU-USUARIO/NOME-DO-REPOSITORIO.git
+git clone file:///C:/Users/matheus_schneider150/Documents/html/reserva-eletronica/sistema_de_controle.html
 Navegue até a pasta do projeto.
 
 Dê um duplo clique no arquivo index.html para abri-lo no seu navegador de preferência.
@@ -53,10 +54,10 @@ Senha: 1234
 Melhorias Futuras
 Ideias para expandir o projeto:
 
-[ ] Separar os códigos HTML, CSS e JS em arquivos distintos para melhor organização.
+Separar os códigos HTML, CSS e JS em arquivos distintos para melhor organização.
 
-[ ] Criar um painel de administração para cadastrar novos componentes no estoque dinamicamente.
+Criar um painel de administração para cadastrar novos componentes no estoque dinamicamente.
 
-[ ] Conectar a um banco de dados real (como Firebase ou Supabase) no lugar do localStorage.
+Conectar a um banco de dados real (como Firebase ou Supabase) no lugar do localStorage.
 
-[ ] Adicionar funcionalidade de exportação de relatórios em PDF/Excel.
+Adicionar funcionalidade de exportação de relatórios em PDF/Excel.
